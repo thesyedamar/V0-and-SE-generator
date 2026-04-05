@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlRomaih Audio Generator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #46194F;
+        }
+
+        header h1 {
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .section {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #2a2a4a;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #c9a0dc;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title .badge {
+            background: #46194F;
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0f1a30;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #46194F;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        textarea[dir="rtl"] {
+            font-family: 'Segoe UI', 'Arabic Typesetting', Tahoma, sans-serif;
+            min-height: 160px;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .row > * { flex: 1; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #46194F;
+            color: #fff;
+        }
+
+        .btn-primary:hover { background: #5a2366; }
+
+        .btn-secondary {
+            background: #2a2a4a;
+            color: #e0e0e0;
+        }
+
+        .btn-secondary:hover { background: #3a3a5a; }
+
+        .btn-danger {
+            background: transparent;
+            color: #e55;
+            border: 1px solid #e55;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #e55;
+            color: #fff;
+        }
+
+        .btn-generate {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 700;
+            background: #46194F;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-generate:hover { background: #5a2366; transform: translateY(-1px); }
+
+        .btn-generate:disabled {
+            background: #333;
+            color: #777;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-generate .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .card {
+            background: #0f1a30;
+            border: 1px solid #2a2a4a;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 14px;
+            position: relative;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .card-header span {
+            font-weight: 600;
+            color: #c9a0dc;
+            font-size: 14px;
+        }
+
+        .field-group {
+            margin-bottom: 12px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: #2a2a4a;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background: #46194F;
+        }
+
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .add-btn-row {
+            text-align: center;
+            margin-top: 14px;
+        }
+
+        /* Results */
+        .results-panel {
+            display: none;
+        }
+
+        .results-panel.visible {
+            display: block;
+        }
+
+        .summary-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .summary-item {
+            background: #0f1a30;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .summary-item .num {
+            font-size: 28px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .summary-item .lbl {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .summary-item.success .num { color: #4caf50; }
+        .summary-item.skipped .num { color: #ff9800; }
+        .summary-item.failed .num { color: #e55; }
+
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: #0f1a30;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .result-item .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .result-item .status-dot.success { background: #4caf50; }
+        .result-item .status-dot.skipped { background: #ff9800; }
+        .result-item .status-dot.failed { background: #e55; }
+
+        .result-item .r-type {
+            background: #2a2a4a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .result-item .r-name { flex: 1; color: #fff; font-weight: 500; }
+        .result-item .r-size { color: #999; font-size: 12px; }
+        .result-item .r-error { color: #e55; font-size: 12px; flex: 1; }
+
+        .msg {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .msg.success { background: #1b3d1b; color: #4caf50; display: block; }
+        .msg.error { background: #3d1b1b; color: #e55; display: block; }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        /* VO sections highlight */
+        .section-vo {
+            border-left: 3px solid #46194F;
+            background: linear-gradient(90deg, rgba(70,25,79,0.08) 0%, #16213e 120px);
+        }
+
+        .paid-tag {
+            display: inline-block;
+            background: #46194F;
+            color: #c9a0dc;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+            margin-left: auto;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AlRomaih Audio Generator</h1>
+            <p>Generate voiceover and sound effect files with ElevenLabs API</p>
+        </header>
+
+        <!-- Section 1: API Setup -->
+        <div class="section">
+            <div class="section-title">API Setup</div>
+            <div class="row">
+                <div class="field-group" style="flex:3">
+                    <label>ElevenLabs API Key</label>
+                    <input type="password" id="apiKey" placeholder="Paste your ElevenLabs API key" value="{{ api_key }}">
+                </div>
+                <div class="field-group" style="flex:0 0 auto">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
+                </div>
+            </div>
+            <div id="keyMsg" class="msg"></div>
+        </div>
+
+        <!-- Section 2: Voice Selection -->
+        <div class="section section-vo">
+            <div class="section-title">Voice Selection <span class="paid-tag">Paid Key</span></div>
+            <div class="row">
+                <div class="field-group" style="flex:3">
+                    <label>Voice</label>
+                    <select id="voiceSelect">
+                        <option value="">-- Load voices first --</option>
+                    </select>
+                </div>
+                <div class="field-group" style="flex:0 0 auto">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-secondary" id="loadVoicesBtn" onclick="loadVoices()">Load Voices</button>
+                </div>
+            </div>
+            <div id="voiceMsg" class="msg"></div>
+        </div>
+
+        <!-- Section 3: Paid Account Key for VO -->
+        <div class="section section-vo">
+            <div class="section-title">Paid Account Key <span style="font-size:12px;color:#999;font-weight:400;margin-left:4px;">(optional — used for VO generation only)</span> <span class="paid-tag">Paid Key</span></div>
+            <p style="font-size:13px;color:#888;margin-bottom:14px;">If you have a separate paid ElevenLabs account for voiceover generation, enter its API key here. VO files will use this key instead of the main one. Sound effects will still use the main key.</p>
+            <div class="row">
+                <div class="field-group" style="flex:3">
+                    <label>Paid ElevenLabs API Key</label>
+                    <input type="password" id="paidKey" placeholder="Paste your paid account API key" value="{{ paid_key }}">
+                </div>
+                <div class="field-group" style="flex:0 0 auto">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="savePaidKey()">Save Key</button>
+                </div>
+            </div>
+            <div id="paidKeyMsg" class="msg"></div>
+        </div>
+
+        <!-- Section 4: VO Quality Settings -->
+        <div class="section section-vo">
+            <div class="section-title">VO Quality Settings <span class="paid-tag">Paid Key</span></div>
+            <div class="settings-grid">
+                <div class="field-group">
+                    <label>Stability (0 - 1)</label>
+                    <input type="number" id="stability" value="0.75" min="0" max="1" step="0.05">
+                </div>
+                <div class="field-group">
+                    <label>Similarity Boost (0 - 1)</label>
+                    <input type="number" id="similarityBoost" value="0.85" min="0" max="1" step="0.05">
+                </div>
+                <div class="field-group">
+                    <label>Style (0 - 1)</label>
+                    <input type="number" id="style" value="0.4" min="0" max="1" step="0.05">
+                </div>
+                <div class="toggle-row">
+                    <label class="toggle">
+                        <input type="checkbox" id="speakerBoost" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span style="font-size:13px;">Speaker Boost</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Voiceover Files -->
+        <div class="section section-vo">
+            <div class="section-title">
+                Voiceover Files
+                <span class="badge" id="voCount">0</span>
+                <span class="paid-tag">Paid Key</span>
+            </div>
+            <div id="voCards"></div>
+            <div class="empty-state" id="voEmpty">No VO files added yet. Click below to add one.</div>
+            <div class="add-btn-row">
+                <button class="btn btn-secondary" onclick="addVoCard()">+ Add VO File</button>
+            </div>
+        </div>
+
+        <!-- Section 5: Sound Effects -->
+        <div class="section">
+            <div class="section-title">
+                Sound Effects
+                <span class="badge" id="sfxCount">0</span>
+            </div>
+            <div id="sfxCards"></div>
+            <div class="empty-state" id="sfxEmpty">No SFX files added yet. Click below to add one.</div>
+            <div class="add-btn-row">
+                <button class="btn btn-secondary" onclick="addSfxCard()">+ Add SFX File</button>
+            </div>
+        </div>
+
+        <!-- Section 6: Generate Button -->
+        <button class="btn-generate" id="generateBtn" onclick="generateAll()">
+            Generate All Files
+        </button>
+
+        <!-- Section 7: Results -->
+        <div class="section results-panel" id="resultsPanel">
+            <div class="section-title">Results</div>
+            <div class="summary-bar" id="summaryBar"></div>
+            <div id="resultsList"></div>
+        </div>
+    </div>
+
+    <script>
+        let voCounter = 0;
+        let sfxCounter = 0;
+
+        // --- API Key ---
+        function saveApiKey() {
+            const key = document.getElementById('apiKey').value.trim();
+            const msg = document.getElementById('keyMsg');
+            if (!key) {
+                showMsg(msg, 'Please enter an API key.', 'error');
+                return;
+            }
+            fetch('/api/save-key', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({api_key: key})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) showMsg(msg, data.error, 'error');
+                else showMsg(msg, 'API key saved successfully.', 'success');
+            })
+            .catch(() => showMsg(msg, 'Failed to save API key.', 'error'));
+        }
+
+        // --- Paid Key ---
+        function savePaidKey() {
+            const key = document.getElementById('paidKey').value.trim();
+            const msg = document.getElementById('paidKeyMsg');
+            if (!key) {
+                showMsg(msg, 'Please enter a paid API key.', 'error');
+                return;
+            }
+            fetch('/api/save-paid-key', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({paid_key: key})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) showMsg(msg, data.error, 'error');
+                else showMsg(msg, 'Paid key saved. VO files will use this account.', 'success');
+            })
+            .catch(() => showMsg(msg, 'Failed to save paid key.', 'error'));
+        }
+
+        // --- Voices ---
+        function loadVoices() {
+            const btn = document.getElementById('loadVoicesBtn');
+            const msg = document.getElementById('voiceMsg');
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+            fetch('/api/voices')
+            .then(r => r.json())
+            .then(data => {
+                btn.textContent = 'Load Voices';
+                btn.disabled = false;
+                if (data.error) {
+                    showMsg(msg, data.error, 'error');
+                    return;
+                }
+                const sel = document.getElementById('voiceSelect');
+                sel.innerHTML = '<option value="">-- Select a voice --</option>';
+                data.voices.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v.voice_id;
+                    opt.textContent = v.display;
+                    sel.appendChild(opt);
+                });
+                showMsg(msg, `Loaded ${data.voices.length} voices.`, 'success');
+            })
+            .catch(() => {
+                btn.textContent = 'Load Voices';
+                btn.disabled = false;
+                showMsg(msg, 'Failed to load voices.', 'error');
+            });
+        }
+
+        // --- VO Cards ---
+        function addVoCard() {
+            voCounter++;
+            document.getElementById('voEmpty').style.display = 'none';
+            const container = document.getElementById('voCards');
+            const id = 'vo-' + voCounter;
+            const html = `
+                <div class="card" id="${id}">
+                    <div class="card-header">
+                        <span>VO File #${voCounter}</span>
+                        <button class="btn btn-danger" onclick="removeCard('${id}', 'vo')">Remove</button>
+                    </div>
+                    <div class="row" style="margin-bottom:12px">
+                        <div class="field-group">
+                            <label>Filename</label>
+                            <input type="text" class="vo-filename" placeholder="vo_intro.mp3">
+                        </div>
+                        <div class="field-group">
+                            <label>Save Folder</label>
+                            <input type="text" class="vo-folder" placeholder="C:/Users/you/project/public/audio">
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>Arabic Script</label>
+                        <textarea class="vo-text" dir="rtl" placeholder="الصق النص العربي هنا..."></textarea>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            updateCounts();
+        }
+
+        // --- SFX Cards ---
+        function addSfxCard() {
+            sfxCounter++;
+            document.getElementById('sfxEmpty').style.display = 'none';
+            const container = document.getElementById('sfxCards');
+            const id = 'sfx-' + sfxCounter;
+            const html = `
+                <div class="card" id="${id}">
+                    <div class="card-header">
+                        <span>SFX File #${sfxCounter}</span>
+                        <button class="btn btn-danger" onclick="removeCard('${id}', 'sfx')">Remove</button>
+                    </div>
+                    <div class="row" style="margin-bottom:12px">
+                        <div class="field-group">
+                            <label>Filename</label>
+                            <input type="text" class="sfx-filename" placeholder="boom_cinematic.mp3">
+                        </div>
+                        <div class="field-group">
+                            <label>Save Folder</label>
+                            <input type="text" class="sfx-folder" placeholder="C:/Users/you/project/public/sfx">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="field-group" style="flex:3">
+                            <label>Sound Description (English)</label>
+                            <input type="text" class="sfx-prompt" placeholder="deep cinematic impact boom explosion">
+                        </div>
+                        <div class="field-group" style="flex:1">
+                            <label>Duration (sec)</label>
+                            <input type="number" class="sfx-duration" value="5" min="1" max="22" step="0.5">
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            updateCounts();
+        }
+
+        function removeCard(id, type) {
+            document.getElementById(id).remove();
+            updateCounts();
+            if (type === 'vo' && document.querySelectorAll('#voCards .card').length === 0) {
+                document.getElementById('voEmpty').style.display = 'block';
+            }
+            if (type === 'sfx' && document.querySelectorAll('#sfxCards .card').length === 0) {
+                document.getElementById('sfxEmpty').style.display = 'block';
+            }
+        }
+
+        function updateCounts() {
+            document.getElementById('voCount').textContent = document.querySelectorAll('#voCards .card').length;
+            document.getElementById('sfxCount').textContent = document.querySelectorAll('#sfxCards .card').length;
+        }
+
+        // --- Generate ---
+        function generateAll() {
+            const btn = document.getElementById('generateBtn');
+            const voiceId = document.getElementById('voiceSelect').value;
+            const voCards = document.querySelectorAll('#voCards .card');
+            const sfxCards = document.querySelectorAll('#sfxCards .card');
+
+            if (voCards.length === 0 && sfxCards.length === 0) {
+                alert('Add at least one VO or SFX file first.');
+                return;
+            }
+
+            if (voCards.length > 0 && !voiceId) {
+                alert('Please select a voice for VO files.');
+                return;
+            }
+
+            const voJobs = [];
+            voCards.forEach(card => {
+                voJobs.push({
+                    filename: card.querySelector('.vo-filename').value,
+                    folder: card.querySelector('.vo-folder').value,
+                    text: card.querySelector('.vo-text').value,
+                });
+            });
+
+            const sfxJobs = [];
+            sfxCards.forEach(card => {
+                sfxJobs.push({
+                    filename: card.querySelector('.sfx-filename').value,
+                    folder: card.querySelector('.sfx-folder').value,
+                    prompt: card.querySelector('.sfx-prompt').value,
+                    duration: parseFloat(card.querySelector('.sfx-duration').value) || 5,
+                });
+            });
+
+            const payload = {
+                voice_id: voiceId,
+                voice_settings: {
+                    stability: parseFloat(document.getElementById('stability').value),
+                    similarity_boost: parseFloat(document.getElementById('similarityBoost').value),
+                    style: parseFloat(document.getElementById('style').value),
+                    use_speaker_boost: document.getElementById('speakerBoost').checked,
+                },
+                vo_jobs: voJobs,
+                sfx_jobs: sfxJobs,
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+            fetch('/api/generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload),
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.textContent = 'Generate All Files';
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                showResults(data);
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.textContent = 'Generate All Files';
+                alert('Request failed: ' + err.message);
+            });
+        }
+
+        function showResults(data) {
+            const panel = document.getElementById('resultsPanel');
+            const summaryBar = document.getElementById('summaryBar');
+            const list = document.getElementById('resultsList');
+            const s = data.summary;
+
+            summaryBar.innerHTML = `
+                <div class="summary-item success">
+                    <span class="num">${s.vo_success}</span>
+                    <span class="lbl">VO Success</span>
+                </div>
+                <div class="summary-item success">
+                    <span class="num">${s.sfx_success}</span>
+                    <span class="lbl">SFX Success</span>
+                </div>
+                <div class="summary-item skipped">
+                    <span class="num">${s.skipped}</span>
+                    <span class="lbl">Skipped</span>
+                </div>
+                <div class="summary-item failed">
+                    <span class="num">${s.failed}</span>
+                    <span class="lbl">Failed</span>
+                </div>
+            `;
+
+            list.innerHTML = '';
+            data.results.forEach(r => {
+                let detail = '';
+                if (r.status === 'success' || r.status === 'skipped') {
+                    detail = `<span class="r-size">${r.size_kb} KB</span>`;
+                } else {
+                    detail = `<span class="r-error">${r.error}</span>`;
+                }
+                list.innerHTML += `
+                    <div class="result-item">
+                        <span class="status-dot ${r.status}"></span>
+                        <span class="r-type">${r.type}</span>
+                        <span class="r-name">${r.filename}</span>
+                        ${detail}
+                    </div>
+                `;
+            });
+
+            panel.classList.add('visible');
+            panel.scrollIntoView({behavior: 'smooth'});
+        }
+
+        function showMsg(el, text, type) {
+            el.className = 'msg ' + type;
+            el.textContent = text;
+            setTimeout(() => { el.className = 'msg'; }, 5000);
+        }
+    </script>
+</body>
+</html>
