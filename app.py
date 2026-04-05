@@ -262,4 +262,6 @@ def generate():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5050, debug=True)
+    from waitress import serve
+    print("AlRomaih Audio Generator running on http://localhost:5050")
+    serve(app, host="0.0.0.0", port=5050)
